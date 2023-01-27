@@ -1,0 +1,307 @@
+﻿@using System.Security.Claims;
+@using TestYourself.Core.Entities.ViewModel.Campus
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var userId = User.FindFirst(ClaimTypes.Name).Value;
+    var porcCorr = Model.stats.TotalCorrect * 100 / (Model.stats.TotalCount!=0?Model.stats.TotalCount:1);
+    var porcIncorr = Model.stats.TotalIncorrect * 100 / (Model.stats.TotalCount != 0 ? Model.stats.TotalCount : 1);
+
+
+}
+@model DashboardViewModel
+
+<div class="container ">
+        <div class="container ">
+            <div class="row ">
+                <div class="col-md">
+                    <div class="card mb-4 bg-secondary  ">
+                        <div class="card-header header-elements">
+                            <span class="h3" style="color:white;margin-bottom:0!important">¿Qué te gustaría estudiar hoy?</span>
+
+                            <div class="card-header-elements ms-auto">
+                                <div class="btn-group">
+                                    <a href="@Url.Action("CreateTest","Exam")" class="btn" style="background-color:#00cfdd;color:white;">Comenzar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col-lg-6 col-12">
+                    <div class="card">
+                        <h5 class="card-header">Rendimiento</h5>
+                        <div class="card-body">
+                        <canvas id="doughnutChart" class="chartjs mx-5 " data-height="1"></canvas>
+                            <ul class="doughnut-legend d-flex justify-content-around ps-0 mb-3 pt-1">
+                                <li class="ct-series-2 d-flex flex-column">
+                                    <h5 class="mb-0 fw-bold">Incorrectas</h5>
+                                    <span class="badge badge-dot my-2 cursor-pointer rounded-pill"
+                                          style="background-color:#FF0000; width: 35px; height: 6px"></span>
+                                    <div class="text-muted">
+                                        @Html.Raw(porcIncorr)%
+                                    </div>
+                                </li>
+                                <li class="ct-series-1 d-flex flex-column">
+                                    <h5 class="mb-0 fw-bold">Correctas</h5>
+                                    <span class="badge badge-dot my-2 cursor-pointer rounded-pill"
+                                          style="background-color: #00FF00; width: 35px; height: 6px"></span>
+                                    <div class="text-muted">
+                                        @Html.Raw(porcCorr)%
+
+                                    </div>
+                                </li>
+                            </ul>
+
+                            <div class="row">
+                            <div class="col-md-7">
+                                </div>
+                                <div class="col-md-5">
+                                    <a class="btn btn-info" href="@Url.Action("TestStats","Exam")"> 
+                                        Análisis completo
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-12">
+                    <div class="card">
+                        <div class="card-header">
+                                    <h5 class="card-title mb-0">Ultimos 4 meses</h5>
+                                </div>
+                    <div class="card-body">
+                                    <div id="radarChart"></div>
+                        <table class="table ">
+
+                            <tbody class="table-border-bottom-0">
+                                @for (var i = 0; i < 2; i++)
+                                {
+                                    <tr>
+                                        <td> <strong> @Model.Last5Exams[i].DateStarted </strong></td>
+
+                                        <td class="text-end">
+                                            <a class="btn btn-outline-light" href="/Exam/HistoryTest?examid=@Model.Last5Exams[i].ExamID">
+                                                <i class="fa fa-eye"></i>
+                                                Ver
+                                            </a>
+                                        </td>
+
+                                    </tr>
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>  </div>
+                        </div>
+                        <!-- /Radar Chart -->
+            </div>
+            <br />
+            <div class="row ">
+                <div class="col-md">
+                    <div class="card mb-4">
+                    <h5 class="card-header">Últimos 5 exámenes</h5>
+                        <div class="table-responsive text-nowrap">
+                        <table class="table datatables-ajax table table-bordered text-center">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <a asp-action="HistoryTests" asp-route-sortOrder="@ViewData["ExamSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                                            Fecha
+                                        </a>
+                                    </th>
+                                    <th>
+                                        Puntaje
+                                    </th>
+                                    <th>
+                                        Correctas
+                                    </th>
+                                    <th>
+                                    </th>
+                                </tr>
+                            </thead>
+                                <tbody class="table-border-bottom-0">
+                                    @for(var i = 0; i < Model.Last5Exams.Count();i++)
+                                    {
+                                                 decimal corr = Model.Last5Exams[i].ExamDetails.Where(x => x.IsCorrect == true).Count();
+                                    decimal tot = Model.Last5Exams[i].QuestionsAmount;
+                            double div = Math.Round(((float)corr / (float)tot) * 100);
+
+                                    <tr>
+
+                                        <td>
+                                            @Html.Raw(Model.Last5Exams[i].DateStarted.ToString("dd/MM/yyyy HH:mm"))
+                                        </td>
+                                        <td class="text-center">
+                                            <span>
+                                                @Html.Raw(div + "%")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex justify-content-between">
+
+                                                @Html.Raw("<span>"+Model.Last5Exams[i].ExamDetails.Where(x=>x.IsCorrect==true).Count()+"</span>")
+                                                <span>
+                                                    /
+                                                </span>
+
+                                                @Html.Raw("<span>" + Model.Last5Exams[i].QuestionsAmount + "</span>")
+                                            </div>
+                                            <br>
+                                            <div class="progress mb-3">
+                                                <div class="progress-bar bg-success"
+                                                 role="progressbar"
+                                                 style="width: @(div)%"
+                                                 aria-valuenow="@(div)"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100"></div>
+                                                <div class="progress-bar bg-danger"
+                                                 role="progressbar"
+                                                 style="width: @(100 - div)%"
+                                                 aria-valuenow="@(100 - div)"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100"></div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <a class="btn btn-outline-light" style="color:black" href="/Exam/HistoryTest?examid=@Model.Last5Exams[i].ExamID">
+                                                <i class="fa fa-eye"></i>
+                                                Ver
+                                            </a>
+                                        </td>
+                                    </tr>
+                                  
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+@section Scripts {
+
+    <!-- endbuild -->
+    <!-- Vendors JS -->
+    <script src="../../assets/vendor/libs/chartjs/chartjs.js"></script>
+    <script src="../../assets/js/charts-apex.js"></script>
+        
+
+    <script>
+        'use strict';
+
+        (function () {
+            // Color Variables
+            const purpleColor = '#836AF9',
+                yellowColor = '#ffe800',
+                redColor = '#ff0000',
+                greenColor = '#00FF00',
+                cyanColor = '#28dac6',
+                orangeColor = '#FF8132',
+                orangeLightColor = '#FDAC34',
+                oceanBlueColor = '#299AFF',
+                greyColor = '#4F5D70',
+                greyLightColor = '#EDF1F4',
+                blueColor = '#2B9AFF',
+                blueLightColor = '#84D0FF';
+
+            let cardColor, headingColor, labelColor, borderColor, legendColor;
+
+            if (isDarkStyle) {
+                cardColor = config.colors_dark.cardColor;
+                headingColor = config.colors_dark.headingColor;
+                labelColor = config.colors_dark.textMuted;
+                legendColor = config.colors_dark.bodyColor;
+                borderColor = config.colors_dark.borderColor;
+            } else {
+                cardColor = config.colors.cardColor;
+                headingColor = config.colors.headingColor;
+                labelColor = config.colors.textMuted;
+                legendColor = config.colors.bodyColor;
+                borderColor = config.colors.borderColor;
+            }
+
+            // Set height according to their data-height
+            // --------------------------------------------------------------------
+            const chartList = document.querySelectorAll('.chartjs');
+            chartList.forEach(function (chartListItem) {
+                chartListItem.height = chartListItem.dataset.height;
+            });
+            // Doughnut Chart
+            // --------------------------------------------------------------------
+
+            const doughnutChart = document.getElementById('doughnutChart');
+            if (doughnutChart) {
+                const doughnutChartVar = new Chart(doughnutChart, {
+                    type: 'pie',
+                    data: {
+                        labels: ["Correctas", "Incorrectas"],// JSON.parse(nombresEspecialidades),
+                        datasets: [
+                            {
+                                data: [@Model.stats.TotalCorrect, @Model.stats.TotalIncorrect],//JSON.parse(correctas),
+                                backgroundColor: [greenColor, redColor],
+                                borderWidth: 0,
+                                pointStyle: 'rectRounded'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        animation: {
+                            duration: 500
+                        },
+                        cutout: '0%',
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const label = context.label || '',
+                                            value = context.parsed;
+                                        const output = ' ' + label + ' : ' + value + ' ';
+                                        return output;
+                                    }
+                                },
+                                // Updated default tooltip UI
+                                rtl: isRtl,
+                                backgroundColor: cardColor,
+                                titleColor: headingColor,
+                                bodyColor: legendColor,
+                                borderWidth: 1,
+                                borderColor: borderColor
+                            }
+                        }
+                    }
+                });
+            }
+            var nombresEspecialidades = '[@foreach (var e in Model.stats.CountBySpecialties)
+        {
+            var last = Model.stats.CountBySpecialties.Last();
+            if (last.Name == e.Name)
+                @Html.Raw('"'+e.Name+'"')
+            else
+                @Html.Raw('"'+e.Name+'"' + ",")
+            ;
+        }]';
+            var correctas = '[@foreach (var e in Model.stats.CountBySpecialties)
+        {
+            var last = Model.stats.CountBySpecialties.Last();
+            if (last.Name == e.Name)
+                @Html.Raw(e.Corrects)
+            else
+                @Html.Raw(e.Corrects + ",")
+            ;
+        }]';
+
+
+
+
+        })();
+    </script>
+}
