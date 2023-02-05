@@ -25,6 +25,10 @@ namespace TestYourself.Data.Repositories
         public Question InsertQuestion(Question question)
         {
             question.UniqueIdentity = GetLastID() + 1;
+            if (question.QuestionImage == null)
+                question.QuestionImage = "";
+            if (question.ExplanationImage == null)
+                question.ExplanationImage = "";
 
             _context.Questions.Add(question);
             _context.SaveChanges();

@@ -3,8 +3,10 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     var userId = User.FindFirst(ClaimTypes.Name).Value;
-    var porcCorr = Model.stats.TotalCorrect * 100 / (Model.stats.TotalCount!=0?Model.stats.TotalCount:1);
-    var porcIncorr = Model.stats.TotalIncorrect * 100 / (Model.stats.TotalCount != 0 ? Model.stats.TotalCount : 1);
+    var porcCorr = Model.PieChart.TotalCorrect * 100 / (Model.PieChart.TotalCount!=0?Model.PieChart.TotalCount:1);
+    var porcIncorr = Model.PieChart.TotalIncorrect * 100 / (Model.PieChart.TotalCount != 0 ? Model.PieChart.TotalCount : 1);
+    var listaSpecialties = Model.PercentilChart.Percentils.Select(x=>x.Specialty.Name).ToList();
+    var listaPercentilsValue = Model.PercentilChart.Percentils.Select(x=>x.Value).ToList();
 
 
 }
@@ -27,6 +29,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="row ">
                 <div class="col-lg-6 col-12">
                     <div class="card">
@@ -68,30 +71,33 @@
                 <div class="col-lg-6 col-12">
                     <div class="card">
                         <div class="card-header">
-                                    <h5 class="card-title mb-0">Ultimos 4 meses</h5>
+                                    <h5 class="card-title mb-0">Mejores Especialidades</h5>
                                 </div>
                     <div class="card-body">
                                     <div id="radarChart"></div>
+                                @if(Model.PercentilChart.Percentils.Count() > 0)
+                                {
                         <table class="table ">
 
                             <tbody class="table-border-bottom-0">
-                                @for (var i = 0; i < 2; i++)
+                                    @for (var i = 0; i < Model.PercentilChart.Percentils.Count(); i++)
                                 {
                                     <tr>
-                                        <td> <strong> @Model.Last5Exams[i].DateStarted </strong></td>
+                                        <td> <strong> @Model.PercentilChart.Percentils[i].Specialty.Name </strong></td>
 
                                         <td class="text-end">
-                                            <a class="btn btn-outline-light" href="/Exam/HistoryTest?examid=@Model.Last5Exams[i].ExamID">
-                                                <i class="fa fa-eye"></i>
-                                                Ver
-                                            </a>
+                                                @Model.PercentilChart.Percentils[i].Value
                                         </td>
 
                                     </tr>
 
                                 }
+
                             </tbody>
-                        </table>
+                            </table>
+                        }else{
+                            Html.Raw("Aún no hay datos para mostrar");
+                        }
                     </div>  </div>
                         </div>
                         <!-- /Radar Chart -->
@@ -121,7 +127,9 @@
                                 </tr>
                             </thead>
                                 <tbody class="table-border-bottom-0">
-                                    @for(var i = 0; i < Model.Last5Exams.Count();i++)
+                                @if (Model.Last5Exams.Count() > 0)
+                                {
+                                        for(var i = 0; i < Model.Last5Exams.Count();i++)
                                     {
                                                  decimal corr = Model.Last5Exams[i].ExamDetails.Where(x => x.IsCorrect == true).Count();
                                     decimal tot = Model.Last5Exams[i].QuestionsAmount;
@@ -172,6 +180,9 @@
                                     </tr>
                                   
                                     }
+                                }else{
+                                    Html.Raw("Aún no hay datos para mostrar");
+                                }
                                 </tbody>
                             </table>
                         </div>
@@ -188,7 +199,7 @@
     <!-- endbuild -->
     <!-- Vendors JS -->
     <script src="../../assets/vendor/libs/chartjs/chartjs.js"></script>
-    <script src="../../assets/js/charts-apex.js"></script>
+    
         
 
     <script>
@@ -242,7 +253,7 @@
                         labels: ["Correctas", "Incorrectas"],// JSON.parse(nombresEspecialidades),
                         datasets: [
                             {
-                                data: [@Model.stats.TotalCorrect, @Model.stats.TotalIncorrect],//JSON.parse(correctas),
+                                data: [@Model.PieChart.TotalCorrect, @Model.PieChart.TotalIncorrect],//JSON.parse(correctas),
                                 backgroundColor: [greenColor, redColor],
                                 borderWidth: 0,
                                 pointStyle: 'rectRounded'
@@ -280,18 +291,18 @@
                     }
                 });
             }
-            var nombresEspecialidades = '[@foreach (var e in Model.stats.CountBySpecialties)
+            var nombresEspecialidades = '[@foreach (var e in Model.PieChart.CountBySpecialties)
         {
-            var last = Model.stats.CountBySpecialties.Last();
+            var last = Model.PieChart.CountBySpecialties.Last();
             if (last.Name == e.Name)
                 @Html.Raw('"'+e.Name+'"')
             else
                 @Html.Raw('"'+e.Name+'"' + ",")
             ;
         }]';
-            var correctas = '[@foreach (var e in Model.stats.CountBySpecialties)
+            var correctas = '[@foreach (var e in Model.PieChart.CountBySpecialties)
         {
-            var last = Model.stats.CountBySpecialties.Last();
+            var last = Model.PieChart.CountBySpecialties.Last();
             if (last.Name == e.Name)
                 @Html.Raw(e.Corrects)
             else
@@ -304,4 +315,154 @@
 
         })();
     </script>
+    <script>
+
+'use strict';
+
+(function () {
+  let cardColor, headingColor, labelColor, borderColor, legendColor, radialTrackColor;
+
+  if (isDarkStyle) {
+    cardColor = config.colors_dark.cardColor;
+    headingColor = config.colors_dark.headingColor;
+    labelColor = config.colors_dark.textMuted;
+    legendColor = config.colors_dark.bodyColor;
+    borderColor = config.colors_dark.borderColor;
+    radialTrackColor = '#36435C';
+  } else {
+    cardColor = config.colors.cardColor;
+    headingColor = config.colors.headingColor;
+    labelColor = config.colors.textMuted;
+    legendColor = config.colors.bodyColor;
+    borderColor = config.colors.borderColor;
+    radialTrackColor = config.colors_label.secondary;
+  }
+
+  // Color constant
+  const chartColors = {
+    column: {
+      series1: '#826af9',
+      series2: '#d2b0ff',
+      bg: '#f8d3ff'
+    },
+    donut: {
+      series1: '#fee802',
+      series2: '#3fd0bd',
+      series3: '#826bf8',
+      series4: '#2b9bf4'
+    },
+    area: {
+      series1: '#29dac7',
+      series2: '#60f2ca',
+      series3: '#a5f8cd'
+    }
+  };
+
+
+  // Radar Chart
+  // --------------------------------------------------------------------
+  const radarChartEl = document.querySelector('#radarChart'),
+    radarChartConfig = {
+      chart: {
+        height: 350,
+        fontFamily: 'IBM Plex Sans',
+        type: 'radar',
+        toolbar: {
+          show: false
+        },
+        dropShadow: {
+          enabled: false,
+          blur: 8,
+          left: 1,
+          top: 1,
+          opacity: 0.2
+        }
+      },
+      legend: {
+        show: true,
+        position: 'bottom',
+        labels: {
+          colors: legendColor,
+          useSeriesColors: false
+        }
+      },
+      plotOptions: {
+        radar: {
+          polygons: {
+            strokeColors: borderColor,
+            connectorColors: borderColor
+          }
+        }
+      },
+      yaxis: {
+        show: false
+      },
+      series: [
+        {
+          name: 'Yo',
+          data: @Html.Raw("[")
+        @for (var i = 0; i < listaPercentilsValue.Count(); i++)
+            {
+                @Html.Raw(" '");
+                @Html.Raw(listaPercentilsValue[i]);
+                @Html.Raw("'");
+            if (i != listaPercentilsValue.Count() - 1)
+                    @Html.Raw(",");
+
+            }
+            @Html.Raw("]"),
+        },
+        {
+          name: 'Promedio',
+          data: [0,0,0, 99, 99, 25, 58, 63, 76, 43]
+        }
+      ],
+      colors: [chartColors.donut.series1, chartColors.donut.series3],
+      xaxis: {
+        categories:
+            @Html.Raw("[")
+            @for (var i = 0; i < listaSpecialties.Count(); i++)
+            {
+                @Html.Raw(" '");
+                @Html.Raw(listaSpecialties[i]);
+                @Html.Raw("'");
+                if (i != listaSpecialties.Count() - 1)
+                    @Html.Raw(",");
+
+            }
+            @Html.Raw("]"),
+        labels: {
+          show: true,
+          style: {
+            colors: [labelColor, labelColor, labelColor, labelColor, labelColor, labelColor, labelColor, labelColor],
+            fontSize: '13px',
+            fontFamily: 'IBM Plex Sans'
+          }
+        }
+      },
+      fill: {
+        opacity: [1, 0.8]
+      },
+      stroke: {
+        show: false,
+        width: 0
+      },
+      markers: {
+        size: 0
+      },
+      grid: {
+        show: false,
+        padding: {
+          top: -20,
+          bottom: -20
+        }
+      }
+    };
+  if (typeof radarChartEl !== undefined && radarChartEl !== null) {
+    const radarChart = new ApexCharts(radarChartEl, radarChartConfig);
+    radarChart.render();
+  }
+
+})();
+</script>
 }

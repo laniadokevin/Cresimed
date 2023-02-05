@@ -10,7 +10,8 @@ namespace TestYourself.Core.Entities.ViewModel.Campus
 {
     public class DashboardViewModel
     {
-        public ExamStatsViewModel stats { get; set; }
+        public ExamStatsViewModel PieChart { get; set; }
+        public PercentilsViewModel PercentilChart { get; set; }
         public List<Exam> Last5Exams{ get; set; }
         
     }

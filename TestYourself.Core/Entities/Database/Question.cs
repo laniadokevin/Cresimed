@@ -28,6 +28,7 @@ namespace TestYourself.Core.Entities.Database
         public virtual Career Career { get; set; }
         public virtual Specialty Specialty { get; set; }
         public virtual Category Category { get; set; }
+        public virtual QuestionStat QuestionStat { get; set; }
 
         [ForeignKey("QuestionID")]
         public virtual ICollection<Answer> Answers { get; set; }

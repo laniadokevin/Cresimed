@@ -20,8 +20,10 @@ namespace TestYourself.Campus.Controllers
         private readonly IQuestionRepository _questionRepository;
         private readonly ISpecialtyRepository _specialtyRepository;
         private readonly ICategoryRepository _categoryRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IReportRepository _reportRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IPercentilRepository _percentilRepository;
+        private readonly IQuestionStatRepository _questionStatRepository;
 
         public ExamController(
             IExamRepository examRepository,
@@ -30,7 +32,9 @@ namespace TestYourself.Campus.Controllers
             ICategoryRepository categoryRepository,
             IReportRepository reportRepository,
             ISpecialtyRepository specialtyRepository,
-            IUserRepository userRepository
+            IUserRepository userRepository,
+            IPercentilRepository percentilRepository,
+            IQuestionStatRepository questionStatRepository
             )
         {
             _examRepository = examRepository ?? throw new ArgumentNullException(nameof(examRepository));
@@ -40,6 +44,8 @@ namespace TestYourself.Campus.Controllers
             _specialtyRepository = specialtyRepository?? throw new ArgumentNullException(nameof(specialtyRepository));
             _categoryRepository = categoryRepository?? throw new ArgumentNullException(nameof(categoryRepository));
             _reportRepository = reportRepository?? throw new ArgumentNullException(nameof(reportRepository));
+            _percentilRepository = percentilRepository ?? throw new ArgumentNullException(nameof(percentilRepository));
+            _questionStatRepository = questionStatRepository ?? throw new ArgumentNullException(nameof(questionStatRepository));
         }
 
 
@@ -87,6 +93,11 @@ namespace TestYourself.Campus.Controllers
         public IActionResult FinishTest(List<ExamDetail> e)
         {
             _examRepository.AnswerExam(e);
+            _percentilRepository.UpdatePercentil(e);
+            _questionStatRepository.UpdateQuestionStat(e);
+
+
+
             return RedirectToAction("HistoryTest", new { examID = e.FirstOrDefault().ExamID });
         }
 

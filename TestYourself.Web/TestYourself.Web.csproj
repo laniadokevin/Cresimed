@@ -4,6 +4,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
+	  <PreserveCompilationContext>true</PreserveCompilationContext>
+	  <MvcRazorCompileOnPublish>false</MvcRazorCompileOnPublish>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,11 +28,6 @@
 	<ItemGroup>
     <ProjectReference Include="..\TestYourself.Core\TestYourself.Core.csproj" />
     <ProjectReference Include="..\TestYourself.Data\TestYourself.Data.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Areas\Campus\Data\" />
-    <Folder Include="Areas\Campus\Models\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -933,6 +931,10 @@
     <None Include="wwwroot\assets\vendors\select2\select2.min.css" />
     <None Include="wwwroot\assets\vendors\select2\select2.min.js" />
     <None Include="wwwroot\assets\vendors\typeahead.js\typeahead.bundle.min.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\templateCampus\" />
   </ItemGroup>
 
 </Project>

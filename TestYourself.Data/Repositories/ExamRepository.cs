@@ -104,7 +104,7 @@ namespace TestYourself.Data.Repositories
                         }
                     }
 
-                var questions = _context.Questions.Include("Answers").Include("KeyWords").AsQueryable();
+                var questions = _context.Questions.Include("Answers").Include("QuestionStat").Include("KeyWords").AsQueryable();
 
                 // Checkear Por Category
                 if (filters.QuestionsCategory > 0)
@@ -134,7 +134,28 @@ namespace TestYourself.Data.Repositories
 
                 var list = questions.OrderBy(x => Guid.NewGuid()).Take(filters.QuestionsAmount).ToList();
                 
-                
+                if (list.Count < filters.QuestionsAmount) 
+                {
+
+                    questions = _context.Questions.Include("Answers").Include("KeyWords").AsQueryable();
+
+                    // Checkear Por Category
+                    if (filters.QuestionsCategory > 0)
+                    {
+                        questions = questions.Where(x => filters.QuestionsCategory == x.CategoryID).AsQueryable();
+                    }
+
+                    // Checkear que especialidad quiere hacer
+                    if (filters.QuestionsSpecialty.Count() > 0)
+                    {
+                        questions = questions.Where(x => filters.QuestionsSpecialty.Contains(x.SpecialtyID)).AsQueryable();
+                    }
+                    var listAux = questions.OrderBy(x => Guid.NewGuid()).Take(filters.QuestionsAmount - list.Count).ToList();
+                    foreach (var question in listAux)
+                        list.Add(question);
+
+                }
+
                 return (InsertNewExam(list, filters));
             }
             catch (Exception ex)

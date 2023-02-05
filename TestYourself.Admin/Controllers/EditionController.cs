@@ -277,6 +277,8 @@ namespace TestYourself.Admin.Controllers
 
                     if ((view.File != null) && _bufferedFileUploadService.UploadFile(view.File, date))
                         view.NewQuestion.QuestionImage = view.File.FileName.Replace(System.IO.Path.GetExtension(view.File.FileName), "") + date + System.IO.Path.GetExtension(view.File.FileName);
+                    
+                    date = DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss_fffffff");
 
                     if ((view.AnswerFile != null) && _bufferedFileUploadService.UploadFile(view.AnswerFile, date))
                         view.NewQuestion.ExplanationImage = view.AnswerFile.FileName.Replace(System.IO.Path.GetExtension(view.AnswerFile.FileName), "") + date + System.IO.Path.GetExtension(view.AnswerFile.FileName);
@@ -330,6 +332,8 @@ namespace TestYourself.Admin.Controllers
 
                         if ((view.File != null) && _bufferedFileUploadService.UploadFile(view.File, date))
                             view.NewQuestion.QuestionImage = view.File.FileName.Replace(System.IO.Path.GetExtension(view.File.FileName), "") + date + System.IO.Path.GetExtension(view.File.FileName);
+                        
+                        date = DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss_fffffff");
 
                         if ((view.AnswerFile != null) && _bufferedFileUploadService.UploadFile(view.AnswerFile, date))
                             view.NewQuestion.ExplanationImage = view.AnswerFile.FileName.Replace(System.IO.Path.GetExtension(view.AnswerFile.FileName), "") + date + System.IO.Path.GetExtension(view.AnswerFile.FileName);

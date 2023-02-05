@@ -1,4 +1,4 @@
-﻿
+﻿    
 @using System.Security.Claims;
 @using TestYourself.Core.Entities.Database
 @using TestYourself.Core.Entities.ViewModel.Admin.Edition
@@ -197,7 +197,7 @@
                                         <div class="upload-options">
                                         @if (Model.Question!=null){
 
-                                              <img src= "https://admin.cresimed.com/images/questions/@Url.Content(Model.Question.QuestionImage)" width=100 alt="Image" />
+                                              <img src= "~/images/questions/@Url.Content(Model.Question.QuestionImage)" width=100 alt="Image" />
                                         }
                                             <label>
                                                 <input type="file" asp-for=File  class="image-upload" accept="image/*" id="NewQuestionQuestionImage" class="file" >
@@ -215,7 +215,7 @@
                                         @if(Model.Question!=null)
                                         {
 
-                                            <img src="https://admin.cresimed.com/images/questions/@Url.Content(Model.Question.ExplanationImage)" width=100 alt="Image" />
+                                            <img src="~/images/questions/@Url.Content(Model.Question.ExplanationImage)" width=100 alt="Image" />
                                         }
                                     <label for="NewQuestionExplanationImage">
                                         <input id="NewQuestionExplanationImage"  asp-for=AnswerFile type="file" class="image-upload" accept="image/*" />

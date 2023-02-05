@@ -26,5 +26,8 @@ namespace TestYourself.Core.Entities.Database
         public bool Deleted { get; set; }
 
         public virtual ICollection<UserRole> UserRoles { get; set; }
+        
+        [ForeignKey("PercentilID")]
+        public virtual ICollection<Percentil> Percentils { get; set; }
     }
 }

@@ -35,6 +35,7 @@ function preventAllInteraction() {
 $(document).ready(function () {
 	//preventAllInteraction();
 	$("#inputTimer").hide();
+	$("#radioButtonNEW").prop("checked", "checked");
 	$("#switchTimer").on("click", function () {
 		if ($("#switchTimer").prop("checked"))
 			$("#inputTimer").show();
@@ -52,25 +53,34 @@ function validateCreateExamForm() {
 	// cantidad preguntas
 	if ($("#QuestionAmount").val() <= 0) {
 		valid = false;
-		textError = textError + " - La cantidad de preguntas no puede ser cero <br>";
+		textError = textError + " - La cantidad de preguntas no puede ser cero o menor <br>";
 	}
+	// cantidad preguntas
+	if ($("#QuestionAmount").val() >200) {
+		valid = false;
+		textError = textError + " - La cantidad de preguntas no puede ser mayor a 200 <br>";
+	}
+	
 
 	// timer
 	if ($("#switchTimer").prop("checked") && $("#TimerInput").val() <= 0) {
 			valid = false;
-			textError = textError + " - La cantidad de tiempo no puede ser cero <br>";
+			textError = textError + " - La cantidad de tiempo no puede ser cero o menor<br>";
 	}
 
 	// 
-	$("#radioButtonALL").prop("checked"),
-	$("#radioButtonNEW").prop("checked"),
-		$("#radioButtonINCORRECT").prop("checked")	
+	//$("#radioButtonALL").prop("checked"),
+	//$("#radioButtonNEW").prop("checked"),
+	//$("#radioButtonINCORRECT").prop("checked")	
 
 
 	if (valid)
 		$("#FormCreateExam").submit();
-	else
+	else {
+
+		$("html, body").animate({ scrollTop: 0 }, "smooth");
 		$("#ErrorMsg").html(textError);
+    }
 		
 	
 	

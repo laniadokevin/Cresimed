@@ -33,6 +33,9 @@ namespace TestYourself.Data
         public virtual DbSet<Contact> Contacts { get; set; }
         public virtual DbSet<ExamDetail> ExamDetails { get; set; }
         public virtual DbSet<Report> Reports { get; set; }
+        public virtual DbSet<Percentil> Percentils { get; set; }
+        public virtual DbSet<QuestionStat> QuestionStats { get; set; }
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -194,6 +197,23 @@ namespace TestYourself.Data
             {
                 entity.HasKey(e => e.ReportID);
                 entity.ToTable("Report");
+
+
+            });
+
+            modelBuilder.Entity<Percentil>(entity =>
+
+            {
+                entity.HasKey(e => e.PercentilID);
+                entity.ToTable("Percentil");
+
+            });
+
+            modelBuilder.Entity<QuestionStat>(entity =>
+
+            {
+                entity.HasKey(e => e.QuestionStatID);
+                entity.ToTable("QuestionStat");
 
 
             });

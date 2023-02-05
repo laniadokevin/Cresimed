@@ -16,14 +16,19 @@ namespace TestYourself.Campus.Controllers
         private readonly IUserRepository _userRepository;
         private readonly ILogRepository _logRepository;
         private readonly IExamRepository _examRepository;
+        private readonly IPercentilRepository _percentilRepository;
 
         private SecurityManager securityManager = new SecurityManager();
 
-        public AccountController(IUserRepository userRepository, ILogRepository logRepository, IExamRepository examRepository)
+        public AccountController(IUserRepository userRepository,
+            ILogRepository logRepository,
+            IExamRepository examRepository,
+            IPercentilRepository percentilRepository)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _logRepository = logRepository ?? throw new ArgumentNullException(nameof(logRepository));
             _examRepository = examRepository ?? throw new ArgumentNullException(nameof(examRepository));
+            _percentilRepository = percentilRepository ?? throw new ArgumentNullException(nameof(percentilRepository));
         }
 
         [Route("")]
@@ -57,9 +62,14 @@ namespace TestYourself.Campus.Controllers
         public IActionResult Welcome()
         {
             DashboardViewModel view = new DashboardViewModel();
-            var userid = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            view.stats = _examRepository.GetAllBySpecialty(userid);
-            view.Last5Exams = _examRepository.GetLast5Exams(userid);
+
+            var userID = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            
+            view.PieChart = _examRepository.GetAllBySpecialty(userID);
+            view.Last5Exams = _examRepository.GetLast5Exams(userID);
+            view.PercentilChart = _percentilRepository.GetPercentilsForUser(userID);
+            if (view.PercentilChart.Percentils.Count()>10)
+                view.PercentilChart.Percentils = view.PercentilChart.Percentils.Take(10).ToList();
 
             return View("Welcome", view);
         }
